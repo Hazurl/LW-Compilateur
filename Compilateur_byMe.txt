@@ -27,27 +27,27 @@ function _CreateStructure () {
 
 //:: CREATION DE L'OBJET STACK, DE TYPE LIFO, "last in first out"
 function new_Stack () { //Creation de l'objet
-	return @function (@cmd) {
-		var _stack = []; // La pile
-		var _top = null; // La derniere valeur
-		var _size = 0;
-		if (cmd === "isEmpty") return function () { return (_size === 0); }; // Retourne true si la pile est vide, false sinon
-		if (cmd === "size") return function () { return _size; }; // Retourne la taille de la pile
-		if (cmd === "top") return function () { return _top; }; // Retourne la taille de la pile
-		if (cmd === "pop") return @function () { // Supprime le dernier objet et le renvoie
-			if (_size === 0) return null;
+	var _stack = []; // La pile
+	var _top = null; // La derniere valeur
+	var _size = 0;
+	
+	return @(function (@cmd) {
+		if (cmd === "isEmpty") return (_size === 0); // Retourne true si la pile est vide, false sinon
+		else if (cmd === "size") return _size; // Retourne la taille de la pile
+		else if (cmd === "top") return _top; // Retourne la taille de la pile
+		else if (cmd === "pop") return (function () { // Supprime le dernier objet et le renvoie
+			if (_size === 0) return ;
 			var tmp = _top;
 
 			remove(_stack, _size - 1); _size--;
 			_top = _stack[_size - 1];
 
 			return tmp;
-		};
-		if (cmd === "push") return @function (@elem) { // Supprime le dernier objet et le renvoie
+		})();
+		else if (cmd === "push") return (function (@elem) { // Supprime le dernier objet et le renvoie
 			if (elem === null) return ;
-			_top = elem;
 			_size++;
-			push(_stack, elem);
-		};
-	};
+			push(_stack, _top = elem);
+		});
+	});
 }
