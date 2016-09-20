@@ -1,0 +1,20 @@
+include("Concours_Compilateur");
+//:: CONSTANTE LIE A LA COMPILATION
+global _wordAI = [];
+global _CompilVar = [];
+global _KeyWord = ["var"]; // Pour l'instant les seuls mise en place
+global _NativeFunction = ["debug" : debug];
+global _Structure = [];
+
+//:: CONSTANTE KEYWORD
+global KW_IF = 1;
+global KW_IF_ELSE = 2;
+global KW_WHILE = 3;
+global KW_DO_WHILE = 4;
+global KW_FOR = 5;
+global KW_FOREACH = 6;
+global KW_PARENTHESE = 7;
+
+function _CompileAndRun (@str) {
+    
+}
