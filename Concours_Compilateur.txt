@@ -1,3 +1,4 @@
+if (getTurn() > 1) return;
 include("Compilateur_byMe");
 //:: LEVEL TO COMPILE 
 // Renseigner la plage de valeur des valeurs que vous voulez compilez par exemple : [1, 7] signifie qe les 7 premiers levels seront compilés
@@ -52,7 +53,7 @@ CountOpe (5, function () { return CompileAndRun("
 "); } );
  
 function CountOpe (@lvl, @callback) {
-	if ((lvl < PLAGE_LEVEL[0] && PLAGE_LEVEL[0] !== -1) || (lvl > PLAGE_LEVEL[1] && PLAGE_LEVEL[0] !== -1)) return ;
+	if (!((lvl >= PLAGE_LEVEL[0] || PLAGE_LEVEL[1] === -1) && (lvl <= PLAGE_LEVEL[1] || PLAGE_LEVEL[1] === -1))) return;
     var ope = getOperations();
 	var output = @(callback());
 	ope = getOperations() - ope - 6; //Determine sur un appel à "vide" (CompileAndRun vide)
