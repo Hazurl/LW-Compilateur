@@ -3,7 +3,7 @@ include("lib_Objet");
 //:: CONSTANTE LIE A LA COMPILATION
 global _wordAI = [];
 global _CompilVar = [];
-global _KeyWord = ["var"]; // Pour l'instant les seuls mise en place
+global _KeyWord = ["var", "if", "while", "do", "global", "else", "return", "function", "for", "in"]; // Pour l'instant les seuls mise en place
 global _NativeFunction = ["debug" : debug];
 global _Structure = [];
 global _AI = "";
@@ -55,7 +55,7 @@ function _SplitAI () {
 			AddWord();
 		}
 
-		else if (char === '=' || char === '-' || char === '+' || char === '*' || char === '/' || char === '%' || char === '>' || char === '<') {
+		else if (char === '|' || char === '&' || char === '=' || char === '-' || char === '+' || char === '*' || char === '/' || char === '%' || char === '>' || char === '<') {
 			// Operator
 			AddWord();
 			currentMod = MOD_OPERATOR;
