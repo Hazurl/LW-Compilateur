@@ -6,7 +6,7 @@ global _CompilVar = [];
 global _KeyWord = ["var"]; // Pour l'instant les seuls mise en place
 global _NativeFunction = ["debug" : debug];
 global _Structure = [];
-global _IA = "";
+global _AI = "";
 
 //:: CONSTANTE KEYWORD
 global KW_IF = 1;
@@ -17,11 +17,61 @@ global KW_FOR = 5;
 global KW_FOREACH = 6;
 global KW_PARENTHESE = 7;
 
+//:: CONSTANTE MOD
+global MOD_NUMBER = 1;
+global MOD_VARIABLE = 2;
+global MOD_OPERATOR = 3;
+
 function _CompileAndRun (@str) {
-    _IA = @str;
+    _Ai = @str;
+
 }
 
 function _CreateStructure () {
 	var stack = new_Stack();
 	
+}
+
+function _SplitAI () {
+	var currentWord = "";
+	var currentMod = null;
+	var AddWord = function () {
+		if (currentWord === "") return;
+		else {
+			push(_wordAI, currentWord);
+			currentWord = ""; return;
+		}
+	}
+	for (var char in _AI) {
+		if (char === ' ' || char === '\n' || char === '\t') { // blank character
+			AddWord();
+		}
+
+		else if (char === ";" || char === "," || char === "(" || char === ")" || char === "{" || char === "}") { // EndOfLign, Coma, brackets, accolades
+			AddWord();
+			currentWord = char;
+			AddWord();
+		}
+
+		else if (char === '=' || char === '-' || char === '+' || char === '*' || char === '/' || char === '%' || char === '>' || char === '<') {
+			// Operator
+			AddWord();
+			currentMod = MOD_OPERATOR;
+
+			currentWord += char;
+		}
+
+		else if (number(char) !== null) { // number : 2 cases -> a number or a variable/function
+			if (currentMod !== MOD_NUMBER && currentMod !== MOD_VARIABLE) AddWord();
+			if (currentMod !== MOD_VARIABLE) currentMod = MOD_NUMBER;
+
+			currentWord += char;
+		}
+
+		else { // This is a letter, so we are writing a vriable/function/KW
+			if (currentMod !== MOD_VARIABLE) AddWord() && (currentMod = MOD_VARIABLE);
+
+			currentWord += char;
+		}
+	}
 }
