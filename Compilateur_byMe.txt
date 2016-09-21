@@ -71,7 +71,10 @@ function _SplitAI () {
 		}
 
 		else { // This is a letter, so we are writing a vriable/function/KW
-			if (currentMod !== MOD_VARIABLE) AddWord() && (currentMod = MOD_VARIABLE);
+			if (currentMod !== MOD_VARIABLE) {
+				AddWord();
+				currentMod = MOD_VARIABLE;
+			}
 
 			currentWord += char;
 		}
