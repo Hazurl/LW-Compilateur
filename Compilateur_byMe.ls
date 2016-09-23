@@ -1,8 +1,9 @@
 include("Concours_Compilateur");
 include("lib_Objet");
 //:: CONSTANTE LIE A LA COMPILATION
-global _wordAI = [];
-global _CompilVar = [];
+global _wordAI = []; // Contient tout les "mots" de l'IA
+global _CompilVar = []; // Contient la valeur de la variable : ["variable" : value, ...]
+global _isCreate = []; // Tableau assoc ["variable" : true], si == true, la variable à été crée
 global _KeyWord = ["var", "if", "while", "do", "global", "else", "return", "function", "for", "in", "break", "continue", "and", "or", "null", "true", "false"];
 global _NativeFunction = ["debug" : debug];
 global _Structure = [];
@@ -15,7 +16,7 @@ global KW_WHILE = 3;
 global KW_DO_WHILE = 4;
 global KW_FOR = 5;
 global KW_FOREACH = 6;
-global KW_PARENTHESE = 7;
+global KW_BRACKETS = 7;
 
 //:: CONSTANTE MOD
 global MOD_NUMBER = 1;
@@ -31,6 +32,23 @@ function _CompileAndRun (@str) {
 function _CreateStructure () {
 	var stack = new_Stack();
 	
+	for (var word in _wordAI) {
+		if (word === "(") { // parenthese ouvrante
+
+		}
+
+		else if (inArray(_KeyWord, word)) { // On est sur un KW, comme if / while / var ...
+
+		}
+
+		else if (inArray(_NativeFunction, word)) { // On est sur une fonction native, i.e. deja implemente par le LS
+
+		}
+
+		else if (_isCreate[word] === true) { // On est sur une variable deja creer
+
+		}
+	}
 }
 
 function _SplitAI () {
