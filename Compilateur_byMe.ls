@@ -7,15 +7,17 @@ global _CompilVar;
 global _KeyWord;
 global _NativeFunction;
 global _InacessibleWord;
+global _CompilBloc;
 //global _Structure;
 global _AI;
+global STOP;
 
 function Reset () {
 	_wordAI = [];
 	_CompilVar = [];
 	_KeyWord = ['var', 'in'];
 	_NativeFunction = ['debug'];
-	_CompilBloc = ['if', 'else', 'while', 'for', 'do']
+	_CompilBloc = ['if', 'else', 'while', 'for', 'do'];
 	_InacessibleWord = _KeyWord + _NativeFunction + _CompilBloc;
 	//_Structure = [];
 	_AI = '';
@@ -43,6 +45,7 @@ function _CompileAndRun (@str) {
     _AI = @str; // inutile ?
 	_SplitAI();
 	debug(_wordAI);
+	Exec([], []);
 }
 /* Finalement cette methode n'est pas bien pour les variables, donc on pars sur de la recursivite
 function _CreateStructure () {
@@ -60,26 +63,30 @@ function _CreateStructure () {
 	}
 }*/
 
-function Exec (var @VarCreate, var @VarValue) { // VarCreate est un tableau possedant les variables globals à ce morceau de code
-	if (InArray(_KeyWord, get())) {
-		if (get() === 'var') FNEW_VAR (VarCreate);
+function Exec (@VarCreate, @VarValue) { // VarCreate est un tableau possedant les variables globals à ce morceau de code
+	if (inArray(_KeyWord, get())) {
+		if (get() === 'var') debug("FNEW_VAR : " + FNEW_VAR (VarCreate, VarValue));
 	}
 }
 
-function FNEW_VAR (var @VarCreate, var @VarValue) {
-	string cur = Next();
+function FNEW_VAR (@VarCreate, @VarValue) {
+	var cur;
 	do { // Cur est un nom de var
-		if (inArray(_InacessibleWord, cur)) { STOP = COMPIL_ERR_UNDIFINED; return null; }
-		if (VarCreate[cur = Next()] === true) { STOP = COMPIL_ERR_UNDIFINED; return null; }
+		cur = Next();
+		if (inArray(_InacessibleWord, cur)) { STOP = 5; return 5; }
+		//if (VarCreate[(cur = Next())] === true) { STOP = 66; return 66; }
 
-		var _var = cur;
+		var _var = cur; debug ("_var : " + _var);
 		VarCreate[_var] = true;
 
-		if ((cur = Next()) === '=') { VarValue[_var] = cur = Next(); cur = Next(); }
+		if ((cur = Next()) === '=') { VarValue[_var] = (cur = Next()); cur = Next(); }
 		else VarValue[_var] = null;
 
 	} while(cur !== ';' && cur !== null);
-	if (cur === null) { STOP = COMPIL_ERR_UNDIFINED; return null; }
+	if (cur === null) { STOP = 777; return 444; }
+	debug("VarCreat : " + VarCreate);
+	debug("VarValue : " + VarValue);
+	return -8888;
 }
 
 function Next () { return _wordAI[++_pos]; }
@@ -124,7 +131,7 @@ function _SplitAI () {
 		}
 
 		else { // This is a letter, so we are writing a vriable/function/KW
-			debugW(char + ' is a letter, the current Mod is ' + currentMod);
+			//debugW(char + ' is a letter, the current Mod is ' + currentMod);
 			if (currentMod !== MOD_VARIABLE) {
 				AddWord();
 				currentMod = MOD_VARIABLE;
