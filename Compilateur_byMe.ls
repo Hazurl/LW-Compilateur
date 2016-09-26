@@ -1,22 +1,30 @@
-include("Concours_Compilateur");
-include("lib_Objet");
+include('Concours_Compilateur');
+include('lib_Objet');
 //:: CONSTANTE LIE A LA COMPILATION
-global _wordAI = []; // Contient tout les "mots" de l'IA
-global _CompilVar = []; // Contient la valeur de la variable : ["variable" : value, ...]
-global _isCreate = []; // Tableau assoc ["variable" : true], si == true, la variable à été crée
-global _KeyWord = ["var", "if", "while", "do", "global", "else", "return", "function", "for", "in", "break", "continue", "and", "or", "null", "true", "false"];
-global _NativeFunction = ["debug" : debug];
-global _Structure = [];
-global _AI = "";
+global _wordAI;
+global _CompilVar;
+global _KeyWord;
+global _NativeFunction;
+global _Structure;
+global _AI;
+
+function Reset () {
+	_wordAI = [];
+	_CompilVar = [];
+	_Structure = [];
+	_AI = '';
+}
 
 //:: CONSTANTE KEYWORD
-global KW_IF = 1;
-global KW_IF_ELSE = 2;
-global KW_WHILE = 3;
-global KW_DO_WHILE = 4;
-global KW_FOR = 5;
-global KW_FOREACH = 6;
-global KW_BRACKETS = 7;
+/* > OPERATIONS                                                                                                                           */
+global OPE_ADD = 1, OPE_SOUS = 2, OPE_DIV = 3, OPE_MULTI = 4, OPE_MOD = 5;
+/* > BLOCS                                                                                                                                */
+global BLOC_IF = 11, BLOC_WHILE = 12, BLOC_DO_WHILE = 13, BLOC_FOR = 14, BLOC_FOREACH = 15;
+/* > CONDITIONS                                                                                                                           */
+global COND_SUP = 21, COND_INF = 22, COND_INF_EGAL = 23, COND_SUP_EGAL = 24, COND_DIF = 25, COND_OR = 26, COND_AND = 27;
+/* > OTHER                                                                                                                                */
+global NEW_VAR = 31, NEW_FUNCTION = 32, ASSIGN = 33;
+
 
 //:: CONSTANTE MOD
 global MOD_NUMBER = 1;
@@ -24,41 +32,29 @@ global MOD_VARIABLE = 2;
 global MOD_OPERATOR = 3;
 
 function _CompileAndRun (@str) {
-    _Ai = @str;
-    _SplitAI();
-    debug(_wordAI);
+	Reset();
+    _AI = @str; // inutile ?
+	_SplitAI();
+	debug(_wordAI);
 }
 
 function _CreateStructure () {
 	var stack = new_Stack();
 	
-	for (var word in _wordAI) {
-		if (word === "(") { // parenthese ouvrante
-
-		}
-
-		else if (inArray(_KeyWord, word)) { // On est sur un KW, comme if / while / var ...
-
-		}
-
-		else if (inArray(_NativeFunction, word)) { // On est sur une fonction native, i.e. deja implemente par le LS
-
-		}
-
-		else if (_isCreate[word] === true) { // On est sur une variable deja creer
-
-		}
+	for(var word in _wordAI) {
+		
 	}
 }
 
 function _SplitAI () {
-	var currentWord = "";
+	var currentWord = '';
 	var currentMod = null;
 	var AddWord = function () {
-		if (currentWord === "") return;
+		//debugW(currentWord);
+		if (currentWord === '') return;
 		else {
 			push(_wordAI, currentWord);
-			currentWord = ""; return;
+			currentWord = ''; return;
 		}
 	};
 	for (var pos = 0; pos < length(_AI); pos++) {
@@ -67,13 +63,13 @@ function _SplitAI () {
 			AddWord();
 		}
 
-		else if (char === ";" || char === "," || char === "(" || char === ")" || char === "{" || char === "}") { // EndOfLign, Coma, brackets, accolades
+		else if (char === ';' || char === ',' || char === '(' || char === ')' || char === '{' || char === '}') { // EndOfLign, Coma, brackets, accolades
 			AddWord();
 			currentWord = char;
 			AddWord();
 		}
 
-		else if (char === '|' || char === '&' || char === '=' || char === '-' || char === '+' || char === '*' || char === '/' || char === '%' || char === '>' || char === '<') {
+		else if (char === '=' || char === '-' || char === '+' || char === '*' || char === '/' || char === '%' || char === '>' || char === '<') {
 			// Operator
 			AddWord();
 			currentMod = MOD_OPERATOR;
@@ -89,7 +85,7 @@ function _SplitAI () {
 		}
 
 		else { // This is a letter, so we are writing a vriable/function/KW
-			if (currentMod === MOD_NUMBER) return 'ERR';
+			debugW(char + ' is a letter, the current Mod is ' + currentMod);
 			if (currentMod !== MOD_VARIABLE) {
 				AddWord();
 				currentMod = MOD_VARIABLE;
@@ -98,6 +94,108 @@ function _SplitAI () {
 			currentWord += char;
 		}
 	}
-
-	return 'OK';
 }
+
+/*
+========================================================================================================== 
+   var test = 5;
+   test = test + 1;
+   
+[
+	[NEW_VAR, test, 5],
+	[ASSIGN, test, [ADDITION, test, 1]]
+]
+========================================================================================================== 
+   var disp = 6;
+   debug(disp);
+   
+[
+	[NEW_VAR, disp, 6],
+	[FUNCTION, debug, disp]
+]
+========================================================================================================== 
+	var ok = true;
+	if (ok) {
+		debug(ok);
+	}
+	else debug("pas ok");
+
+[
+	[NEW_VAR, ok, true],
+	[BLOC_IF, ok, 
+		[FUNCTION, debug, ok],
+		[FUNCTION, debug, 'pas ok']
+	]
+]
+========================================================================================================== 
+	var increment = 3;
+	while (increment > 0) {
+		increment--;
+		debug(increment);
+	}
+	
+[
+	[NEW_VAR, increment, 3],
+	[BLOC_WHILE, [SUPERIEUR, increment, 0],
+		[ASSIGN, increment, --],
+		[FUNCTION, debug, increment]
+	]
+]
+========================================================================================================== 
+	for (var i = 0; i < 3; i++) {
+		debug("i : " + i);
+	}
+
+[
+	[BLOC_FOR, [NEW_VAR, i, 0], [INFERIEUR, i, 3], [ASSIGN, i, ++],
+		[FUNCTION, debug, 'i : ' + i]
+	]
+]
+========================================================================================================== 
+	function haha () { debug("something"); }
+	
+	haha();
+	
+[
+	[NEW_FUNCTION, haha, [], 
+		[FUNCTION, debug, 'something']
+	],
+	[FUNCTION, haha]
+]
+
+========================================================================================================== 
+	var enemy = getNearestEnemy();
+	while (getMP() > 0 || getCellDistance(getCell(), getCell(enemy))) {
+		moveToward(enemy, 1);
+		debug(getCellDistance(getCell(), getCell(enemy)));
+	}
+
+[
+	[NEW_VAR, enemy, [FUNCTION, getNearestEnemy]],
+	[BLOC_WHILE, [OR, [SUPERIEUR, [FUNCTION, getMP], 0], [FUNCTION, getCellDistance, [FUNCTION, getCell], [FUNCTION, getCell, enemy]]],
+		[FUNCTION, moveToward, enemy, 1],
+		[FUNCTION, debug, [FUNCTION, getCellDistance, [FUNCTION, getCell], [FUNCTION, getCell, enemy]]]
+	]
+]
+========================================================================================================== 
+	for (var weap in getWeapons()) {
+		debug(getWeaponName(weap));
+	}
+
+[
+	[BLOC_FOREACH, [NEW_VAR, weap], [FUNCTION, getWeapons]
+		[FUNCTION, debug, [FUNCTION, getWeaponName, weap]]
+	]
+]
+========================================================================================================== 
+*/
+
+
+
+
+
+
+
+
+
+
