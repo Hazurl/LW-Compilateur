@@ -2,17 +2,24 @@ include('Concours_Compilateur');
 include('lib_Objet');
 //:: CONSTANTE LIE A LA COMPILATION
 global _wordAI;
+global _pos;
 global _CompilVar;
 global _KeyWord;
 global _NativeFunction;
-global _Structure;
+global _InacessibleWord;
+//global _Structure;
 global _AI;
 
 function Reset () {
 	_wordAI = [];
 	_CompilVar = [];
-	_Structure = [];
+	_KeyWord = ['var', 'in'];
+	_NativeFunction = ['debug'];
+	_CompilBloc = ['if', 'else', 'while', 'for', 'do']
+	_InacessibleWord = _KeyWord + _NativeFunction + _CompilBloc;
+	//_Structure = [];
 	_AI = '';
+	_pos = 0;
 }
 
 //:: CONSTANTE KEYWORD
@@ -37,14 +44,46 @@ function _CompileAndRun (@str) {
 	_SplitAI();
 	debug(_wordAI);
 }
-
+/* Finalement cette methode n'est pas bien pour les variables, donc on pars sur de la recursivite
 function _CreateStructure () {
 	var stack = new_Stack();
-	
-	for(var word in _wordAI) {
-		
+	var word;
+	while ((word = Next()) !== null) {
+		if (InArray(_KeyWord, word)) { // C'est un KW
+			if (word == 'var') { // NEW VAR
+				if ((word = Next()) !== null) return COMPIL_ERR_UNDIFINED;
+
+				if (inArray(_InacessibleWord, word)) return COMPIL_ERR_UNDIFINED;
+
+			}
+		}
+	}
+}*/
+
+function Exec (var @VarCreate, var @VarValue) { // VarCreate est un tableau possedant les variables globals à ce morceau de code
+	if (InArray(_KeyWord, get())) {
+		if (get() === 'var') FNEW_VAR (VarCreate);
 	}
 }
+
+function FNEW_VAR (var @VarCreate, var @VarValue) {
+	string cur = Next();
+	do { // Cur est un nom de var
+		if (inArray(_InacessibleWord, cur)) { STOP = COMPIL_ERR_UNDIFINED; return null; }
+		if (VarCreate[cur = Next()] === true) { STOP = COMPIL_ERR_UNDIFINED; return null; }
+
+		var _var = cur;
+		VarCreate[_var] = true;
+
+		if ((cur = Next()) === '=') { VarValue[_var] = cur = Next(); cur = Next(); }
+		else VarValue[_var] = null;
+
+	} while(cur !== ';' && cur !== null);
+	if (cur === null) { STOP = COMPIL_ERR_UNDIFINED; return null; }
+}
+
+function Next () { return _wordAI[++_pos]; }
+function get () { return _wordAI[_pos]; }
 
 function _SplitAI () {
 	var currentWord = '';
